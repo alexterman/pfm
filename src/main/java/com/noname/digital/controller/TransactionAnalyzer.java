@@ -3,6 +3,8 @@ package com.noname.digital.controller;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
 import com.noname.digital.components.PFMJpaDao;
+import com.noname.digital.controller.rest.NewCategory;
+import com.noname.digital.controller.rest.NewCustomer;
 import com.noname.digital.model.Category;
 import com.noname.digital.model.Customer;
 import org.slf4j.Logger;
@@ -41,7 +43,7 @@ public class TransactionAnalyzer {
     }
 
     @RequestMapping(method = RequestMethod.POST , path = "/customer")
-    public void createCustomer(@RequestBody Customer customer) {
+    public void createCustomer(@RequestBody NewCustomer customer) {
 
         log.debug("Invoked createCustomer " + customer);
         try {
@@ -52,15 +54,15 @@ public class TransactionAnalyzer {
     }
 
     @RequestMapping(method = RequestMethod.POST , path = "/category")
-    public ResponseEntity<?> createCategory(@RequestBody Category category) {
+    public ResponseEntity<?> createCategory(@RequestBody NewCategory newCategory) {
 
-        log.debug("Invoked createCategory " + category);
-        Preconditions.checkNotNull(category, "Category can't be null");
-        Preconditions.checkNotNull(category.customer, "Customer can't be null");
+        log.debug("Invoked createCategory " + newCategory);
+        Preconditions.checkNotNull(newCategory, "Category can't be null");
+        Preconditions.checkNotNull(newCategory.name, "Category name can't be null");
 
         try {
 
-            pfmJpaDao.createCategory(category);
+            pfmJpaDao.createCategory(newCategory);
             return new ResponseEntity(HttpStatus.CREATED);
 
         } catch (Exception e) {

@@ -1,6 +1,9 @@
 package com.noname.digital.components;
 
 import com.google.common.collect.Lists;
+import com.noname.digital.controller.rest.NewCategory;
+import com.noname.digital.controller.rest.NewCustomer;
+import com.noname.digital.controller.rest.NewTag;
 import com.noname.digital.model.Category;
 import com.noname.digital.model.Customer;
 import com.noname.digital.model.Tag;
@@ -15,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -39,25 +43,32 @@ public class PFMJpaDao {
     TagRepository tagRepository;
 
 
-    public void createCustomer (Customer customer){
+    public void createCustomer (NewCustomer newCustomer){
         if(log.isDebugEnabled()){
-            log.info("Requested to create custome: " + customer);
+            log.info("Requested to create custome: " + newCustomer);
         }
+        Customer customer = new Customer(newCustomer.firstName, newCustomer.lastName);
         customerRepository.save(customer);
     }
 
-    public void createCategory (Category category){
+    public void createCategory (NewCategory newCategory){
         if(log.isDebugEnabled()){
-            log.info("Requested to create category: " + category);
+            log.info("Requested to create category: " + newCategory);
         }
+
+        Customer customer = this.customerRepository.findOne(newCategory.customerId);
+        Transaction transaction = this.transactionRepository.findOne(newCategory.transactionId);
+        Category category = new Category(customer,newCategory.name, new HashSet<Transaction>(){{add(transaction);}});
         categoryRepository.save(category);
     }
     
     
-    public void createTag (Tag tag){
+    public void createTag (NewTag newTag){
         if(log.isDebugEnabled()){
-            log.info("Requested to create tag: " + tag);
+            log.info("Requested to create tag: " + newTag);
         }
+
+
         tagRepository.save(tag);
     }
     

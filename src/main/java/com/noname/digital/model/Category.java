@@ -22,10 +22,10 @@ public class Category {
 
     protected Category() {}
 
-    public Category(Customer customer, String name, Set<Transaction> transactions) {
+    public Category(Customer customer, String name, Transaction transactions) {
         this.customer = customer;
         this.name = name;
-        this.transactions = transactions;
+        this.transactions.add(transactions);
     }
 
     @Override
