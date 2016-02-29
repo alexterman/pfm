@@ -50,7 +50,7 @@ public class TransactionAnalyzer {
     }
 
     @RequestMapping(method = RequestMethod.GET , path = "/customer/{id}")
-    public ResponseEntity<Customer> getCustomer(@PathParam("id") long id) {
+    public ResponseEntity<Customer> getCustomer(@PathVariable("id") Long id) {
 
         log.debug("Invoked load customer id [{}]", id);
         return new ResponseEntity(pfmDataAccess.getCustomer(id), HttpStatus.OK);
