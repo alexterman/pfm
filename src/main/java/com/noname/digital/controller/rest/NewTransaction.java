@@ -24,7 +24,7 @@ public class NewTransaction {
                 .add("description", description)
                 .add("balanceBefore", balanceBefore)
                 .add("balanceAfter", balanceAfter)
-                .add("ammount", ammount)
+                .add("amount", ammount)
                 .toString();
     }
 }

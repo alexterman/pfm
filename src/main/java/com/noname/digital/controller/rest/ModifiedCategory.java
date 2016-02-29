@@ -3,19 +3,18 @@ package com.noname.digital.controller.rest;
 import com.google.common.base.MoreObjects;
 
 /**
- * Created by alex on 2/6/16.
+ * Created by alex on 2/28/16.
  */
-public class NewTag {
+public class ModifiedCategory {
+
     public String name;
-    public long customerId;
-    public long transactionId;
+    public long id;
 
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
+                .add("id", id)
                 .add("name", name)
-                .add("customerId", customerId)
-                .add("transactionId", transactionId)
                 .toString();
     }
 }

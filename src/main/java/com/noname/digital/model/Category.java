@@ -14,7 +14,7 @@ public class Category {
 
     public String name;
 
-    @OneToMany
+    @OneToMany(mappedBy = "category")
     public Set<Transaction> transactions;
 
     @ManyToOne
@@ -22,20 +22,22 @@ public class Category {
 
     protected Category() {}
 
-    public Category(Customer customer, String name, Transaction transactions) {
+    public Category(Customer customer, String name, Transaction transaction) {
         this.customer = customer;
         this.name = name;
-        this.transactions.add(transactions);
+        if(transaction != null){
+            this.transactions.add(transaction);
+        }
     }
-
-    @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this)
-                .add("id", id)
-                .add("name", name)
-                .add("transactions", transactions)
-                .add("customer", customer)
-                .toString();
-    }
+//
+//    @Override
+//    public String toString() {
+//        return MoreObjects.toStringHelper(this)
+//                .add("id", id)
+//                .add("name", name)
+//                .add("transactions", transactions)
+//                .add("customer", customer.id)
+//                .toString();
+//    }
 
 }

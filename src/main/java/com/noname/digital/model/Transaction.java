@@ -19,7 +19,7 @@ public class Transaction {
     @ManyToOne
     public Customer customer;
 
-    @ManyToMany
+    @ManyToMany(mappedBy = "transactions")
     public Set<Tag> tags;
 
     public Date execution;
@@ -30,7 +30,7 @@ public class Transaction {
 
     public long balanceAfter;
 
-    public long ammount;
+    public long amount;
 
     protected Transaction() {}
 
@@ -43,21 +43,47 @@ public class Transaction {
         this.description = description;
         this.balanceBefore = balanceBefore;
         this.balanceAfter = balanceAfter;
-        this.ammount = amount;
+        this.amount = amount;
     }
 
-    @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this)
-                .add("id", id)
-                .add("category", category)
-                .add("customer", customer)
-                .add("tags", tags)
-                .add("execution", execution)
-                .add("description", description)
-                .add("balanceBefore", balanceBefore)
-                .add("balanceAfter", balanceAfter)
-                .add("ammount", ammount)
-                .toString();
+
+    public Transaction(Category category, Set<Tag> tags, Customer customer, Date execution, String description,
+                       long balanceBefore, long balanceAfter, long amount) {
+        this.category = category;
+        this.customer = customer;
+        this.execution = execution;
+        this.description = description;
+        this.balanceBefore = balanceBefore;
+        this.balanceAfter = balanceAfter;
+        this.amount = amount;
+
+        this.tags = tags;
     }
+
+    public Transaction(Customer customer, Date execution, String description,
+                       long balanceBefore, long balanceAfter, long amount) {
+
+        this.customer = customer;
+        this.execution = execution;
+        this.description = description;
+        this.balanceBefore = balanceBefore;
+        this.balanceAfter = balanceAfter;
+        this.amount = amount;
+    }
+
+//
+//    @Override
+//    public String toString() {
+//        return MoreObjects.toStringHelper(this)
+//                .add("id", id)
+//                .add("category", category.name)
+//                .add("customer", customer.id)
+//                .add("tags", tags)
+//                .add("execution", execution)
+//                .add("description", description)
+//                .add("balanceBefore", balanceBefore)
+//                .add("balanceAfter", balanceAfter)
+//                .add("amount", amount)
+//                .toString();
+//    }
 }

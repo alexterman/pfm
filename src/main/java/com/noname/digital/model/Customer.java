@@ -14,13 +14,13 @@ public class Customer {
     public String firstName;
     public String lastName;
 
-    @OneToMany
+    @OneToMany(mappedBy = "customer")
     public Set<Category> categories;
 
-    @OneToMany
+    @OneToMany(mappedBy = "customer")
     public Set<Transaction> transactions;
 
-    @OneToMany
+    @OneToMany(mappedBy = "customer")
     public Set<Tag> tags;
 
 
@@ -40,16 +40,16 @@ public class Customer {
         this.firstName = firstName;
         this.lastName = lastName;
     }
-
-    @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this)
-                .add("id", id)
-                .add("firstName", firstName)
-                .add("lastName", lastName)
-                .add("categories", categories)
-                .add("transactions", transactions)
-                .toString();
-    }
+//
+//    @Override
+//    public String toString() {
+//        return MoreObjects.toStringHelper(this)
+//                .add("id", id)
+//                .add("firstName", firstName)
+//                .add("lastName", lastName)
+//                .add("categories", categories)
+//                .add("transactions", transactions)
+//                .toString();
+//    }
 
 }
