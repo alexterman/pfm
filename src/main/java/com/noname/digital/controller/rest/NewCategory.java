@@ -8,14 +8,12 @@ import com.google.common.base.MoreObjects;
 public class NewCategory {
 
     public String name;
-    public long customerId;
-    public long transactionId;
+    public Long transactionId;
 
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
                 .add("name", name)
-                .add("customerId", customerId)
                 .add("transactionId", transactionId)
                 .toString();
     }

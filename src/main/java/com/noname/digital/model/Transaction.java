@@ -5,6 +5,7 @@ import com.google.common.base.MoreObjects;
 import javax.persistence.*;
 import java.util.Date;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 public class Transaction {
@@ -71,19 +72,18 @@ public class Transaction {
         this.amount = amount;
     }
 
-//
-//    @Override
-//    public String toString() {
-//        return MoreObjects.toStringHelper(this)
-//                .add("id", id)
-//                .add("category", category.name)
-//                .add("customer", customer.id)
-//                .add("tags", tags)
-//                .add("execution", execution)
-//                .add("description", description)
-//                .add("balanceBefore", balanceBefore)
-//                .add("balanceAfter", balanceAfter)
-//                .add("amount", amount)
-//                .toString();
-//    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("id", id)
+                .add("category", category.name)
+                .add("customer", customer.id)
+                .add("execution", execution)
+                .add("description", description)
+                .add("balanceBefore", balanceBefore)
+                .add("balanceAfter", balanceAfter)
+                .add("amount", amount)
+                .toString();
+    }
 }

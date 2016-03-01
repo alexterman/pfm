@@ -31,19 +31,21 @@ public class TagResource {
 
 
     @RequestMapping(method = RequestMethod.POST , path = "/tag")
-    public ResponseEntity<Created> createTag(@RequestBody NewTag newTag) {
+    public ResponseEntity<Created> createTag(
+            @PathVariable("id") Long id, @RequestBody NewTag newTag) {
 
-        log.debug("Invoked createCustomer [{}]", newTag);
-        Tag saved = tagDAO.createTag(newTag);
+        log.debug("Invoked createCustomer [{}] [{}]", id, newTag);
+        Tag saved = tagDAO.createTag(id, newTag);
         return new ResponseEntity(new Created(saved.id), HttpStatus.CREATED);
 
     }
 
-    @RequestMapping(method = RequestMethod.GET , path = "/customer/{id}/tag/")
-    public ResponseEntity<FoundTag> getTag(@PathVariable("id") Long id) {
+    @RequestMapping(method = RequestMethod.GET, path = "/tag/{tid}")
+    public ResponseEntity<FoundTag> getTag(
+            @PathVariable("id") Long id, @PathVariable("tid") Long tid) {
 
-        log.debug("Invoked load customer id [{}]", id);
-        Tag tag = this.tagDAO.getTag(id);
+        log.debug("Invoked getTag id [{}] tid [{}]", id, tid);
+        Tag tag = this.tagDAO.getTag(id, tid);
 
         FoundTag foundTag = toFoundTag(tag);
         return new ResponseEntity(foundTag, HttpStatus.OK);
@@ -64,7 +66,7 @@ public class TagResource {
 
 
     @RequestMapping(method = RequestMethod.DELETE , path = "/customer/{id}/tag/{tid}")
-    public ResponseEntity<Category> deleteTag(@PathVariable("id") long id, @PathVariable("tid") long tid) {
+    public ResponseEntity<?> deleteTag(@PathVariable("id") Long id, @PathVariable("tid") long tid) {
 
         log.debug("Invoked delete tag id [{}]", tid);
         Preconditions.checkNotNull(id, "Customer ID can't be null");
@@ -77,7 +79,6 @@ public class TagResource {
 
 
     private FoundTag toFoundTag(Tag tag) {
-
         FoundTag foundTag = new FoundTag(tag.id, tag.name);
         return foundTag;
     }

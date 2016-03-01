@@ -23,12 +23,13 @@ public class TagDAO {
     @Autowired
     TagRepository tagRepository;
 
-    public Tag getTag (long id){
-        return this.tagRepository.findOne(id);
+    public Tag getTag (long customerId, long tagId){
+        getCustomer(customerId);
+        return this.tagRepository.findOne(tagId);
     }
 
-    public Tag createTag (NewTag newTag){
-        Customer customer = getCustomer(newTag.customerId);
+    public Tag createTag (Long customerId, NewTag newTag){
+        Customer customer = getCustomer(customerId);
 
         Tag tag = new Tag(customer,newTag.name);
         Tag saved = this.tagRepository.save(tag);

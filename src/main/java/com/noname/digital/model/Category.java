@@ -22,22 +22,24 @@ public class Category {
 
     protected Category() {}
 
+    public Category(Customer customer, String name) {
+        this.customer = customer;
+        this.name = name;
+    }
+
     public Category(Customer customer, String name, Transaction transaction) {
         this.customer = customer;
         this.name = name;
-        if(transaction != null){
-            this.transactions.add(transaction);
-        }
+        this.transactions.add(transaction);
     }
-//
-//    @Override
-//    public String toString() {
-//        return MoreObjects.toStringHelper(this)
-//                .add("id", id)
-//                .add("name", name)
-//                .add("transactions", transactions)
-//                .add("customer", customer.id)
-//                .toString();
-//    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("id", id)
+                .add("name", name)
+                .add("customer", customer.id)
+                .toString();
+    }
 
 }
