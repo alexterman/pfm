@@ -2,10 +2,7 @@ package com.noname.digital.controller;
 
 import com.google.common.base.Preconditions;
 import com.noname.digital.components.PFMDataAccess;
-import com.noname.digital.controller.rest.Created;
-import com.noname.digital.controller.rest.ModifiedCategory;
-import com.noname.digital.controller.rest.NewCategory;
-import com.noname.digital.controller.rest.NewCustomer;
+import com.noname.digital.controller.rest.*;
 import com.noname.digital.model.Category;
 import com.noname.digital.model.Customer;
 import org.slf4j.Logger;
@@ -13,13 +10,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.websocket.server.PathParam;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by alex on 1/8/16.
@@ -50,10 +45,13 @@ public class TransactionAnalyzer {
     }
 
     @RequestMapping(method = RequestMethod.GET , path = "/customer/{id}")
-    public ResponseEntity<Customer> getCustomer(@PathVariable("id") Long id) {
+    public ResponseEntity<FoundCustomer> getCustomer(@PathVariable("id") Long id) {
 
         log.debug("Invoked load customer id [{}]", id);
-        return new ResponseEntity(pfmDataAccess.getCustomer(id), HttpStatus.OK);
+        Customer customer = pfmDataAccess.getCustomer(id);
+
+        FoundCustomer foundCustomer = toFoundCustomer(customer);
+        return new ResponseEntity(foundCustomer, HttpStatus.OK);
 
     }
 
@@ -91,5 +89,14 @@ public class TransactionAnalyzer {
     }
 
 
+    private static FoundCustomer toFoundCustomer(Customer customer){
+        FoundCustomer foundCustomer = new FoundCustomer();
+        foundCustomer.firstName = customer.firstName;
+        foundCustomer.lastName = customer.lastName;
+        foundCustomer.id = customer.id;
+        foundCustomer.categories = customer.categories.stream().map(c -> new FoundCategory(c.id, c.name)).collect(Collectors.toSet());
+        foundCustomer.tags = customer.tags.stream().map(t -> new FoundTag(t.id, t.name)).collect(Collectors.toSet());
+        return foundCustomer;
+    }
 
 }

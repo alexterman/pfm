@@ -1,18 +1,14 @@
 package com.noname.digital.model;
 
-import com.google.common.base.MoreObjects;
-import org.omg.CORBA.TRANSACTION_MODE;
-
 import javax.persistence.*;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Entity
 public class Tag {
 
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
-    private long id;
+    public long id;
 
     @ManyToOne
     private Customer customer;
@@ -22,12 +18,14 @@ public class Tag {
 
     public String name;
 
-    public Tag(Customer customer, Transaction transaction, String name) {
+    public Tag(){}
+    
+    public Tag(Customer customer, String name) {
         this.customer = customer;
-        this.transactions.add(transaction);
         this.name = name;
     }
-//
+
+    //
 //    @Override
 //    public String toString() {
 //        return MoreObjects.toStringHelper(this)

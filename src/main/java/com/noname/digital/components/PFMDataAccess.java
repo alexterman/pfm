@@ -75,15 +75,6 @@ public class PFMDataAccess {
     }
 
 
-
-    public void createTag (NewTag newTag){
-        log.info("Requested to create tag: [{}]", newTag);
-        Customer customer = this.customerRepository.findOne(newTag.customerId);
-        Transaction transaction = this.transactionRepository.findOne(newTag.transactionId);
-        Tag tag = new Tag(customer,transaction,newTag.name);
-        tagRepository.save(tag);
-    }
-    
     
     public void createTransaction (NewTransaction newTransaction){
         if(log.isDebugEnabled()){
