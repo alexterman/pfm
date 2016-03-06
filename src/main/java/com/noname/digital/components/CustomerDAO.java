@@ -55,7 +55,7 @@ public class CustomerDAO {
                 newTransaction.description,
                 newTransaction.balanceBefore,
                 newTransaction.balanceAfter,
-                newTransaction.ammount
+                newTransaction.amount
                 );
         transactionRepository.save(transaction);
     }

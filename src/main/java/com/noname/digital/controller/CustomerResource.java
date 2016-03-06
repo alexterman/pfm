@@ -26,12 +26,12 @@ public class CustomerResource {
     @Autowired
     private CustomerDAO customerDAO;
 
-    @RequestMapping(method = RequestMethod.GET , path = "/customer")
+    @RequestMapping(method = RequestMethod.GET , path = "/customers")
     public List<Customer> listCustomers() {
         return customerDAO.listCustomers();
     }
 
-    @RequestMapping(method = RequestMethod.POST , path = "/customer")
+    @RequestMapping(method = RequestMethod.POST , path = "/customers")
     public ResponseEntity<Created> createCustomer(@RequestBody NewCustomer customer) {
 
         log.debug("Invoked createCustomer [{}]", customer);
@@ -39,7 +39,7 @@ public class CustomerResource {
         return new ResponseEntity(new Created(id), HttpStatus.CREATED);
     }
 
-    @RequestMapping(method = RequestMethod.GET , path = "/customer/{id}")
+    @RequestMapping(method = RequestMethod.GET , path = "/customers/{id}")
     public ResponseEntity<FoundCustomer> getCustomer(@PathVariable("id") Long id) {
 
         log.debug("Invoked load customer id [{}]", id);

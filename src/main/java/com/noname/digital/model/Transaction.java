@@ -36,7 +36,7 @@ public class Transaction {
     protected Transaction() {}
 
 
-    public Transaction(Category category, Customer customer, Date execution, String description,
+    public Transaction(Customer customer, Category category, Date execution, String description,
                        long balanceBefore, long balanceAfter, long amount) {
         this.category = category;
         this.customer = customer;
@@ -47,19 +47,6 @@ public class Transaction {
         this.amount = amount;
     }
 
-
-    public Transaction(Category category, Set<Tag> tags, Customer customer, Date execution, String description,
-                       long balanceBefore, long balanceAfter, long amount) {
-        this.category = category;
-        this.customer = customer;
-        this.execution = execution;
-        this.description = description;
-        this.balanceBefore = balanceBefore;
-        this.balanceAfter = balanceAfter;
-        this.amount = amount;
-
-        this.tags = tags;
-    }
 
     public Transaction(Customer customer, Date execution, String description,
                        long balanceBefore, long balanceAfter, long amount) {

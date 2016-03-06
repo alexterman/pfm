@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
  */
 
 @RestController
-@RequestMapping("/customer/{id}")
+@RequestMapping("/customers/{id}")
 public class TagResource {
 
 
@@ -30,7 +30,7 @@ public class TagResource {
     private TagDAO tagDAO;
 
 
-    @RequestMapping(method = RequestMethod.POST , path = "/tag")
+    @RequestMapping(method = RequestMethod.POST , path = "/tags")
     public ResponseEntity<Created> createTag(
             @PathVariable("id") Long id, @RequestBody NewTag newTag) {
 
@@ -40,7 +40,7 @@ public class TagResource {
 
     }
 
-    @RequestMapping(method = RequestMethod.GET, path = "/tag/{tid}")
+    @RequestMapping(method = RequestMethod.GET, path = "/tags/{tid}")
     public ResponseEntity<FoundTag> getTag(
             @PathVariable("id") Long id, @PathVariable("tid") Long tid) {
 
@@ -52,9 +52,9 @@ public class TagResource {
 
     }
 
-
-    @RequestMapping(method = RequestMethod.PUT , path = "/customer/{id}/tag")
-    public ResponseEntity<Created> updateTag(@PathVariable ("id") Long id, @RequestBody ModifiedTag modifiedTag) {
+    @RequestMapping(method = RequestMethod.PUT , path = "/tags")
+    public ResponseEntity<Created> updateTag(
+            @PathVariable ("id") Long id, @RequestBody ModifiedTag modifiedTag) {
 
         log.debug("Invoked updateTag " + modifiedTag);
         Preconditions.checkNotNull(modifiedTag.id, "Category ID can't be null");
@@ -65,7 +65,7 @@ public class TagResource {
     }
 
 
-    @RequestMapping(method = RequestMethod.DELETE , path = "/customer/{id}/tag/{tid}")
+    @RequestMapping(method = RequestMethod.DELETE , path = "/tags/{tid}")
     public ResponseEntity<?> deleteTag(@PathVariable("id") Long id, @PathVariable("tid") long tid) {
 
         log.debug("Invoked delete tag id [{}]", tid);
@@ -78,7 +78,7 @@ public class TagResource {
 
 
 
-    private FoundTag toFoundTag(Tag tag) {
+    public static FoundTag toFoundTag(Tag tag) {
         FoundTag foundTag = new FoundTag(tag.id, tag.name);
         return foundTag;
     }

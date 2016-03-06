@@ -20,7 +20,7 @@ import javax.websocket.server.PathParam;
  */
 
 @RestController
-@RequestMapping("/customer/{id}")
+@RequestMapping("/customers/{id}")
 public class CategoryResource {
 
 
@@ -29,7 +29,7 @@ public class CategoryResource {
     @Autowired
     private CategoryDAO categoryDAO;
 
-    @RequestMapping(method = RequestMethod.POST , path = "/category")
+    @RequestMapping(method = RequestMethod.POST , path = "/categories")
     public ResponseEntity<Created> createCategory(
             @PathVariable ("id") Long customerId, @RequestBody NewCategory newCategory) {
 
@@ -42,7 +42,7 @@ public class CategoryResource {
         return new ResponseEntity(new Created(created.id), HttpStatus.CREATED);
     }
 
-    @RequestMapping(method = RequestMethod.PUT , path = "/category")
+    @RequestMapping(method = RequestMethod.PUT , path = "/categories")
     public ResponseEntity<Created> updateCategory(
             @PathVariable ("id") Long customerId, @RequestBody ModifiedCategory modifiedCategory) {
 
@@ -56,7 +56,7 @@ public class CategoryResource {
     }
 
 
-    @RequestMapping(method = RequestMethod.DELETE , path = "/category/{cid}")
+    @RequestMapping(method = RequestMethod.DELETE , path = "/categories/{cid}")
     public ResponseEntity<?> deleteCategory(
             @PathVariable ("id") Long customerId, @PathVariable ("cid") Long cid) {
 
