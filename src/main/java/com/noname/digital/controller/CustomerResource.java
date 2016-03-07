@@ -44,8 +44,11 @@ public class CustomerResource {
 
         log.debug("Invoked load customer id [{}]", id);
         Customer customer = customerDAO.getCustomer(id);
-
+        if(customer == null){
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
         FoundCustomer foundCustomer = toFoundCustomer(customer);
+
         return new ResponseEntity(foundCustomer, HttpStatus.OK);
     }
 
