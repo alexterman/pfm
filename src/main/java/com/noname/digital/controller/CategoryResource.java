@@ -43,17 +43,17 @@ public class CategoryResource {
         return new ResponseEntity(new Created(created.id), HttpStatus.CREATED);
     }
 
-    @RequestMapping(method = RequestMethod.PUT , path = "/categories")
+    @RequestMapping(method = RequestMethod.PUT , path = "/categories/{cid}")
     public ResponseEntity<Created> updateCategory(
-            @PathVariable ("id") Long customerId, @RequestBody ModifiedCategory modifiedCategory) {
+            @PathVariable ("id") Long customerId, @PathVariable ("cid") Long cId, @RequestBody ModifiedCategory modifiedCategory) {
 
         log.debug("Invoked updateCategory " + modifiedCategory);
         Preconditions.checkNotNull(customerId, "Customer ID can't be null");
-        Preconditions.checkNotNull(modifiedCategory.id, "Category ID can't be null");
+        Preconditions.checkNotNull(cId, "Category ID can't be null");
         Preconditions.checkNotNull(modifiedCategory.name, "Category name can't be null");
 
-        this.categoryDAO.updateCategory(customerId, modifiedCategory);
-        return new ResponseEntity(new Created(modifiedCategory.id), HttpStatus.ACCEPTED);
+        this.categoryDAO.updateCategoryName(customerId, cId, modifiedCategory.name);
+        return new ResponseEntity(new Created(cId), HttpStatus.ACCEPTED);
     }
 
 

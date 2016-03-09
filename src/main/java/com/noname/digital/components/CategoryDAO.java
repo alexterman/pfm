@@ -1,6 +1,5 @@
 package com.noname.digital.components;
 
-import com.noname.digital.controller.rest.ModifiedCategory;
 import com.noname.digital.controller.rest.NewCategory;
 import com.noname.digital.model.Category;
 import com.noname.digital.model.Customer;
@@ -37,11 +36,11 @@ public class CategoryDAO {
 
     public Optional<Category> getCategory (Long customerId, long categoryId){
         Customer customer = getCustomer(customerId);
-        if(!isCategoryBelongsToCustomer(categoryId, customer)){
+        Category category = this.categoryRepository.findOne(categoryId);
+        if(!isCategoryBelongsToCustomer(category, customer)){
             return Optional.empty();
         }
-
-        return Optional.of(this.categoryRepository.findOne(categoryId));
+        return Optional.of(category);
     }
 
 
@@ -56,31 +55,34 @@ public class CategoryDAO {
         }else{
             category = new Category(customer,newCategory.name);
         }
-
         Category created = categoryRepository.save(category);
         return created;
     }
 
-    public Category updateCategory(long customerId, ModifiedCategory modifiedCategory){
+    public Category updateCategoryName(Long customerId, Long categoryId, String newName){
 
         Customer customer = getCustomer(customerId);
-        if (isCategoryBelongsToCustomer(modifiedCategory.id, customer)) {
+        Category category = this.categoryRepository.findOne(categoryId);
 
-            Category category = this.categoryRepository.findOne(modifiedCategory.id);
-            category.name = modifiedCategory.name;
+        if (isCategoryBelongsToCustomer(category, customer)) {
+            category.name = newName;
             Category updated = this.categoryRepository.save(category);
             return updated;
         }else{
             throw new RuntimeException(
-                    "Security violation: customer id" + customer.id + " tried to access category id " + modifiedCategory.id);
+                    "Security violation: customer id" + customer.id + " tried to access category id " + categoryId);
         }
     }
 
     public void removeCategory(long customerId, long categoryId){
 
         Customer customer = getCustomer(customerId);
-        if (isCategoryBelongsToCustomer(categoryId, customer)) {
-            this.categoryRepository.delete(categoryId);
+        Category category = this.categoryRepository.findOne(categoryId);
+        if (category.customer.id == customer.id) {
+            categoryRepository.delete(category);
+        }else{
+            throw new RuntimeException(
+                    "Security violation: customer id" + customer.id + " tried to delete category id " + categoryId);
         }
     }
 
@@ -90,9 +92,8 @@ public class CategoryDAO {
         return customer;
     }
 
-    private boolean isCategoryBelongsToCustomer(long id, Customer customer) {
-        long count = customer.categories.stream().filter(c -> c.id == id).count();
-        if(count == 1){
+    private boolean isCategoryBelongsToCustomer(Category category, Customer customer) {
+        if(category != null && customer != null && category.customer.id == customer.id){
             return true;
         }
         return false;
