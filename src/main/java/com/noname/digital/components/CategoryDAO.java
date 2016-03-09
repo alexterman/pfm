@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -33,8 +35,13 @@ public class CategoryDAO {
     @Autowired
     TransactionRepository transactionRepository;
 
-    public Category getCategory (long id){
-        return this.categoryRepository.findOne(id);
+    public Optional<Category> getCategory (Long customerId, long categoryId){
+        Customer customer = getCustomer(customerId);
+        if(!isCategoryBelongsToCustomer(categoryId, customer)){
+            return Optional.empty();
+        }
+
+        return Optional.of(this.categoryRepository.findOne(categoryId));
     }
 
 
@@ -73,9 +80,7 @@ public class CategoryDAO {
 
         Customer customer = getCustomer(customerId);
         if (isCategoryBelongsToCustomer(categoryId, customer)) {
-
-            Category toRemove = this.categoryRepository.findOne(categoryId);
-            this.categoryRepository.delete(toRemove);
+            this.categoryRepository.delete(categoryId);
         }
     }
 

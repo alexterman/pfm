@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.websocket.server.PathParam;
+import java.util.Optional;
 
 /**
  * Created by alex on 1/8/16.
@@ -66,6 +67,26 @@ public class CategoryResource {
         this.categoryDAO.removeCategory(customerId, cid);
         return new ResponseEntity(HttpStatus.ACCEPTED);
     }
+
+
+
+    @RequestMapping(method = RequestMethod.GET , path = "/categories/{cid}")
+    public ResponseEntity<FoundCategory> listUserCategory (
+            @PathVariable ("id") Long customerId, @PathVariable ("cid") Long cid) {
+
+        log.debug("Invoked listUserCategory [{}] [{}]", customerId, cid);
+        Preconditions.checkNotNull(cid, "Category ID can't be null");
+
+        Optional<Category> category = this.categoryDAO.getCategory(customerId, cid);
+        if(category.isPresent()){
+            FoundCategory foundCategory = new FoundCategory(category.get().id, category.get().name);
+            return new ResponseEntity(
+                    foundCategory, HttpStatus.OK);
+        }else{
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+    }
+
 
 
 }
