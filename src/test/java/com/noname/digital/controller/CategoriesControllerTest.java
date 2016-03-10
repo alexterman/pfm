@@ -71,6 +71,13 @@ public class CategoriesControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(content().string("{\"id\":1}"));
+
+        mockMvc.perform(get("/customers/" + user.id).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string(
+                        "{\"id\":"+user.id+",\"firstName\":\"alex\",\"lastName\":\"terman\",\"categories\":[{\"id\":1,\"name\":\"testCategory\"}],\"tags\":[]}"));
+
+
         removeUser();
     }
 
@@ -85,6 +92,41 @@ public class CategoriesControllerTest {
 
         mockMvc.perform(get("/customers/" + user.id + "/categories/" + category.id))
                 .andExpect(status().isNotFound());
+        mockMvc.perform(get("/customers/" + user.id).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string("{\"id\":"+user.id+",\"firstName\":\"alex\",\"lastName\":\"terman\",\"categories\":[],\"tags\":[]}"));
+
+        removeUser();
+
+    }
+
+    @Test
+    public void changeCategoryNameTest () throws Exception {
+
+        Customer user = createUser();
+        Category category = this.categoryRepository.save(new Category(user, "CategoryTest"));
+
+        mockMvc.perform(get("/customers/" + user.id).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string(
+                        "{\"id\":"+user.id+",\"firstName\":\"alex\",\"lastName\":\"terman\",\"categories\":[{\"id\":"+category.id+",\"name\":\"CategoryTest\"}],\"tags\":[]}"));
+
+        mockMvc.perform(
+                    put("/customers/" + user.id + "/categories/" + category.id)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"name\":\"NewName\"}")
+                    )
+                .andExpect(status().isAccepted());
+
+        mockMvc.perform(get("/customers/" + user.id + "/categories/" + category.id))
+                .andExpect(status().isOk())
+                .andExpect(content().string("{\"id\":"+category.id+",\"name\":\"NewName\"}"));
+
+        mockMvc.perform(get("/customers/" + user.id).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string(
+                        "{\"id\":"+user.id+",\"firstName\":\"alex\",\"lastName\":\"terman\",\"categories\":[{\"id\":"+category.id+",\"name\":\"NewName\"}],\"tags\":[]}"));
+
         removeUser();
 
     }
