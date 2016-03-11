@@ -37,7 +37,6 @@ public class TagResource {
         log.debug("Invoked createCustomer [{}] [{}]", id, newTag);
         Tag saved = tagDAO.createTag(id, newTag);
         return new ResponseEntity(new Created(saved.id), HttpStatus.CREATED);
-
     }
 
     @RequestMapping(method = RequestMethod.GET, path = "/tags/{tid}")
@@ -46,7 +45,9 @@ public class TagResource {
 
         log.debug("Invoked getTag id [{}] tid [{}]", id, tid);
         Tag tag = this.tagDAO.getTag(id, tid);
-
+        if(tag == null){
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
         FoundTag foundTag = toFoundTag(tag);
         return new ResponseEntity(foundTag, HttpStatus.OK);
 
@@ -60,7 +61,10 @@ public class TagResource {
         Preconditions.checkNotNull(modifiedTag.id, "Category ID can't be null");
         Preconditions.checkNotNull(modifiedTag.name, "Category name can't be null");
 
-        this.tagDAO.updateTag(id, modifiedTag);
+        Tag tag = this.tagDAO.updateTag(id, modifiedTag);
+        if(tag == null){
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
         return new ResponseEntity(new Created(modifiedTag.id), HttpStatus.ACCEPTED);
     }
 
@@ -75,7 +79,6 @@ public class TagResource {
         this.tagDAO.deleteTag(id, tid);
         return new ResponseEntity(HttpStatus.ACCEPTED);
     }
-
 
 
     public static FoundTag toFoundTag(Tag tag) {

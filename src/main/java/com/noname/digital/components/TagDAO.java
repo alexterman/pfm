@@ -6,6 +6,8 @@ import com.noname.digital.model.Customer;
 import com.noname.digital.model.Tag;
 import com.noname.digital.repo.CustomerRepository;
 import com.noname.digital.repo.TagRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +19,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 @Component
 public class TagDAO {
 
+    private Logger log = LoggerFactory.getLogger(TagDAO.class);
+
     @Autowired
     CustomerRepository customerRepository;
 
@@ -24,20 +28,28 @@ public class TagDAO {
     TagRepository tagRepository;
 
     public Tag getTag (long customerId, long tagId){
-        getCustomer(customerId);
+        if (validateCustomer(customerId) == null){
+            return null;
+        }
         return this.tagRepository.findOne(tagId);
     }
 
-    public Tag createTag (Long customerId, NewTag newTag){
-        Customer customer = getCustomer(customerId);
 
+    public Tag createTag (Long customerId, NewTag newTag){
+        Customer customer = validateCustomer(customerId);
+        if (customer == null){
+            return null;
+        }
         Tag tag = new Tag(customer,newTag.name);
         Tag saved = this.tagRepository.save(tag);
         return saved;
     }
 
     public Tag updateTag(Long customerId, ModifiedTag modifiedTag) {
-        getCustomer(customerId);
+        Customer customer = validateCustomer(customerId);
+        if (customer == null){
+            return null;
+        }
         Tag toBeUpdated = this.tagRepository.findOne(modifiedTag.id);
         checkNotNull(toBeUpdated, "The tag with id " + modifiedTag.id + " not found");
         toBeUpdated.name = modifiedTag.name;
@@ -47,14 +59,24 @@ public class TagDAO {
 
 
     public void deleteTag(Long customerId, Long tagId) {
-        getCustomer(customerId);
+        Customer customer = validateCustomer(customerId);
+        if (customer == null){
+            return ;
+        }
         this.tagRepository.delete(tagId);
     }
 
     private Customer getCustomer(Long id) {
         Customer customer = this.customerRepository.findOne(id);
-        checkNotNull(customer,"No customer found for id="+id);
         return customer;
     }
 
+    private Customer validateCustomer(long customerId) {
+        Customer customer = getCustomer(customerId);
+        if(customer== null){
+            log.error("No customer found with id = " + customerId);
+            return null;
+        }
+        return customer;
+    }
 }
