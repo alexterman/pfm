@@ -6,7 +6,6 @@ import com.noname.digital.controller.rest.Created;
 import com.noname.digital.controller.rest.FoundTag;
 import com.noname.digital.controller.rest.ModifiedTag;
 import com.noname.digital.controller.rest.NewTag;
-import com.noname.digital.model.Category;
 import com.noname.digital.model.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

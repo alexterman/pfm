@@ -92,7 +92,7 @@ public class TransactionResource {
 
         try {
             this.transactionDAO.removeTagFromTransaction(id, tid, tagid);
-            return new ResponseEntity(HttpStatus.OK);
+            return new ResponseEntity(HttpStatus.ACCEPTED);
         }catch (Exception e){
             log.error("Failed to invoke removeTagFromTransaction ", e);
             return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -101,7 +101,7 @@ public class TransactionResource {
 
 
     @RequestMapping(method = RequestMethod.PUT , path = "/transactions/{tid}/addnew_tag/{tagname}")
-    public ResponseEntity<HttpStatus> addNewTagToTransaction(
+    public ResponseEntity<?> addNewTagToTransaction(
             @PathVariable("id") Long id, @PathVariable("tid") Long tid, @PathVariable ("tagname") String tagname) {
 
         log.debug("Invoked addNewTagToTransaction {} {} {}",id, tid, tagname);
@@ -123,7 +123,7 @@ public class TransactionResource {
 
         try {
             this.transactionDAO.removeCategoryFromTransaction(id, tid, cId);
-            return new ResponseEntity(HttpStatus.OK);
+            return new ResponseEntity(HttpStatus.ACCEPTED);
         }catch (Exception e){
             log.error("Failed to invoke removeCategoryFromTransaction ", e);
             return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -138,7 +138,7 @@ public class TransactionResource {
 
         try {
             this.transactionDAO.addCategoryToTransaction(id, tid, cId);
-            return new ResponseEntity(HttpStatus.OK);
+            return new ResponseEntity(HttpStatus.ACCEPTED);
         }catch (Exception e){
             log.error("Failed to invoke addCategoryToTransaction ", e);
             return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -153,7 +153,7 @@ public class TransactionResource {
 
         try {
             Category category = this.transactionDAO.addNewCategoryToTransaction(id, tid, name);
-            return new ResponseEntity(new Created(category.id), HttpStatus.OK);
+            return new ResponseEntity(new Created(category.id), HttpStatus.CREATED);
         }catch (Exception e){
             log.error("Failed to invoke addNewCategoryToTransaction ", e);
             return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);

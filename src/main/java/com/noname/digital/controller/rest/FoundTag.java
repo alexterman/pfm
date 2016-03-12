@@ -7,6 +7,8 @@ public class FoundTag {
     public long id;
     public String name;
 
+    protected FoundTag () {}
+
     public FoundTag(long id, String name) {
         this.id = id;
         this.name = name;

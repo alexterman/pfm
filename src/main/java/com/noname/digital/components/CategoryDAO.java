@@ -3,7 +3,6 @@ package com.noname.digital.components;
 import com.noname.digital.controller.rest.NewCategory;
 import com.noname.digital.model.Category;
 import com.noname.digital.model.Customer;
-import com.noname.digital.model.Transaction;
 import com.noname.digital.repo.CategoryRepository;
 import com.noname.digital.repo.CustomerRepository;
 import com.noname.digital.repo.TransactionRepository;
@@ -48,13 +47,8 @@ public class CategoryDAO {
         log.debug("Requested to create category: [{}]", newCategory);
 
         Customer customer = getCustomer(customerId);
-        Category category;
-        if(newCategory.transactionId != null){
-            Transaction transaction = this.transactionRepository.findOne(newCategory.transactionId);
-            category = new Category(customer,newCategory.name, transaction);
-        }else{
-            category = new Category(customer,newCategory.name);
-        }
+        Category category = new Category(customer,newCategory.name);
+
         Category created = categoryRepository.save(category);
         return created;
     }

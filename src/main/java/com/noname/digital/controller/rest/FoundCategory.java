@@ -7,6 +7,8 @@ public class FoundCategory {
     public long id;
     public String name;
 
+    protected FoundCategory () {}
+
     public FoundCategory(long id, String name) {
         this.id = id;
         this.name = name;

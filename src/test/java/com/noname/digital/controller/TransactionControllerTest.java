@@ -2,11 +2,13 @@ package com.noname.digital.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.noname.digital.Application;
+import com.noname.digital.controller.rest.Created;
 import com.noname.digital.controller.rest.FoundTransaction;
 import com.noname.digital.controller.rest.NewTransaction;
+import com.noname.digital.model.Category;
 import com.noname.digital.model.Customer;
 import com.noname.digital.model.Tag;
-import com.noname.digital.model.Transaction;
+import com.noname.digital.repo.CategoryRepository;
 import com.noname.digital.repo.CustomerRepository;
 import com.noname.digital.repo.TagRepository;
 import org.junit.Before;
@@ -22,10 +24,8 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.Date;
-import java.util.Set;
 
-import static org.assertj.core.api.Assertions.*;
-
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -49,6 +49,8 @@ public class TransactionControllerTest {
     private CustomerRepository customerRepository;
     @Autowired
     private TagRepository tagRepository;
+    @Autowired
+    private CategoryRepository categoryRepository;
 
 
     @Before
@@ -62,6 +64,7 @@ public class TransactionControllerTest {
 
         Customer user = createUser();
 
+        //create transaction
         NewTransaction newTransaction = new NewTransaction();
         newTransaction.amount = 100.00;
         newTransaction.balanceBefore = 3100.00;
@@ -89,6 +92,7 @@ public class TransactionControllerTest {
         assertThat(foundTransaction.balanceBefore).isEqualTo(3100.00);
         assertThat(foundTransaction.description).isEqualTo(newTransaction.description);
 
+        //add existed tag to a transaction
         Tag tag = new Tag();
         tag.name = "testTag";
         tag.customer = user;
@@ -110,7 +114,83 @@ public class TransactionControllerTest {
         assertThat(foundTransaction.tags.size()).isEqualTo(1);
         assertThat(foundTransaction.tags.iterator().next().name).isEqualTo(tag.name);
 
+        //add new tag to a transaction
+        result = mockMvc.perform(put("/customers/" + user.id + "/transactions/1/addnew_tag/" + "ontheflytag")
+                .content(value)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated());
 
+        Created created = mapper.readValue(result.andReturn().getResponse().getContentAsString(), Created.class);
+        assertThat(created).isNotNull();
+
+        mockMvc.perform(get("/customers/" + user.id + "/tags/"+created.id)
+                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
+
+        result = mockMvc.perform(get("/customers/" + user.id + "/transactions/1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+        foundTransaction = mapper.readValue(result.andReturn().getResponse().getContentAsString(), FoundTransaction.class);
+        assertThat(foundTransaction.amount).isEqualTo(100.00);
+        assertThat(foundTransaction.balanceAfter).isEqualTo(3000.00);
+        assertThat(foundTransaction.balanceBefore).isEqualTo(3100.00);
+        assertThat(foundTransaction.description).isEqualTo(newTransaction.description);
+        assertThat(foundTransaction.tags.size()).isEqualTo(2);
+        foundTransaction.tags.stream().forEach(t -> {
+            if(t.id == 1){
+                assertThat(t.name).isEqualTo(tag.name);
+            }
+            if(t.id == 2){
+                assertThat(t.name).isEqualTo("ontheflytag");
+            }
+        });
+
+        //remove tag from transaction
+        mockMvc.perform(put("/customers/" + user.id + "/transactions/1/remove_tag/2")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isAccepted());
+
+        result = mockMvc.perform(get("/customers/" + user.id + "/transactions/1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+        foundTransaction = mapper.readValue(result.andReturn().getResponse().getContentAsString(), FoundTransaction.class);
+        assertThat(foundTransaction.tags.size()).isEqualTo(1);
+        assertThat(foundTransaction.tags.iterator().next().name).isEqualTo(tag.name);
+
+        //add category to transaction
+        Category category = new Category(user, "testCategory");
+        Category savedCategory = this.categoryRepository.save(category);
+        mockMvc.perform(put("/customers/" + user.id + "/transactions/1/add_category/" + savedCategory.id)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isAccepted());
+
+
+        result = mockMvc.perform(get("/customers/" + user.id + "/transactions/1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+        foundTransaction = mapper.readValue(result.andReturn().getResponse().getContentAsString(), FoundTransaction.class);
+        assertThat(foundTransaction.category.name).isEqualTo("testCategory");
+
+        //add new category to transaction
+        mockMvc.perform(put("/customers/" + user.id + "/transactions/1/addnew_category/" + "ontheflycategory")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated());
+        result = mockMvc.perform(get("/customers/" + user.id + "/transactions/1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+        foundTransaction = mapper.readValue(result.andReturn().getResponse().getContentAsString(), FoundTransaction.class);
+        assertThat(foundTransaction.category.name).isEqualTo("ontheflycategory");
+
+        mockMvc.perform(put("/customers/" + user.id + "/transactions/1/remove_category/2")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isAccepted());
+
+        result = mockMvc.perform(get("/customers/" + user.id + "/transactions/1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+        foundTransaction = mapper.readValue(result.andReturn().getResponse().getContentAsString(), FoundTransaction.class);
+        assertThat(foundTransaction.category).isNull();
+
+        //remove transaction
         mockMvc.perform(delete("/customers/" + user.id + "/transactions/1").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isAccepted());
 
@@ -118,10 +198,13 @@ public class TransactionControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
 
-        mockMvc.perform(get("/customers/" + user.id).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().string(
-                        "{\"id\":"+user.id+",\"firstName\":\"alex\",\"lastName\":\"terman\",\"categories\":[],\"tags\":[]}"));
+        this.tagRepository.delete(this.tagRepository.findOne(1L)); //FIXME why cassacde all is not working on a customer?
+        this.tagRepository.delete(this.tagRepository.findOne(2L)); //FIXME why cassacde all is not working on a customer?
+
+        mockMvc.perform(delete("/customers/" + user.id + "/categories/1").contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isAccepted());//FIXME why cassacde all is not working on a customer?
+        mockMvc.perform(delete("/customers/" + user.id + "/categories/2").contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isAccepted());//FIXME why cassacde all is not working on a customer?
 
         removeUser(user);
 

@@ -4,7 +4,6 @@ import com.google.common.base.MoreObjects;
 
 import javax.persistence.*;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Entity
 public class Tag {

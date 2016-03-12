@@ -1,6 +1,5 @@
 package com.noname.digital.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.noname.digital.Application;
 import com.noname.digital.controller.rest.ModifiedTag;

@@ -2,9 +2,7 @@ package com.noname.digital.components;
 
 import com.google.common.collect.Lists;
 import com.noname.digital.controller.rest.NewCustomer;
-import com.noname.digital.controller.rest.NewTransaction;
 import com.noname.digital.model.Customer;
-import com.noname.digital.model.Transaction;
 import com.noname.digital.repo.CategoryRepository;
 import com.noname.digital.repo.CustomerRepository;
 import com.noname.digital.repo.TransactionRepository;

@@ -14,7 +14,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -93,7 +95,7 @@ public class TransactionDAO {
     }
 
 
-    public void removeCategoryFromTransaction(Long customerId, Long categoryId, Long transactionId) {
+    public void removeCategoryFromTransaction(Long customerId, Long transactionId, Long categoryId) {
 
         Category category = this.categoryRepository.findOne(categoryId);
         Transaction transaction = this.transactionRepository.findOne(transactionId);
@@ -113,7 +115,9 @@ public class TransactionDAO {
         Tag tag = this.tagRepository.findOne(tagId);
 
         if(transaction.customer.id == customerId && tag.customer.id == customerId){
-            transaction.tags.add(tag);
+            tag.transactions.add(transaction);
+            //transaction.tags.add(tag);
+
             this.transactionRepository.save(transaction);
         }else{
             throw new RuntimeException ( //TODO maybe change to invalid arguments exception ...
@@ -128,11 +132,12 @@ public class TransactionDAO {
         Tag tag = this.tagRepository.findOne(tagId);
 
         if(transaction.customer.id == customerId && tag.customer.id == customerId){
-            transaction.tags.remove(tag);
+            tag.transactions.remove(transaction);
+            //transaction.tags.remove(tag);
             this.transactionRepository.save(transaction);
         }else{
             log.error(
-                    "removeTagFromTransaction failed, the customerId [[]], transactionId [{}], tagId [{}] not match ",
+                    "removeTagFromTransaction failed, the customerId [{}], transactionId [{}], tagId [{}] not match ",
                     customerId, transactionId, tagId);
         }
     }
@@ -149,7 +154,8 @@ public class TransactionDAO {
 
         Tag saved = createNewTag(tagName, customer);
 
-        transaction.tags.add(saved);
+        //transaction.tags.add(saved);
+        saved.transactions.add(transaction);
         this.transactionRepository.save(transaction);
 
         return saved;
@@ -159,9 +165,9 @@ public class TransactionDAO {
         Transaction transactionToDelete  = this.transactionRepository.findOne(transactionId);
 
         if(transactionToDelete.customer.id == customerId){
+            Set<Tag> tags = transactionToDelete.tags;
+            tags.stream().forEach(t -> t.transactions.remove(transactionToDelete));
             this.transactionRepository.delete(transactionToDelete);
-        }else{
-
         }
     }
 
@@ -176,7 +182,7 @@ public class TransactionDAO {
         Tag tag = new Tag();
         tag.customer = customer;
         tag.name = tagName;
-
+        tag.transactions = new HashSet<>();
         return this.tagRepository.save(tag);
     }
 

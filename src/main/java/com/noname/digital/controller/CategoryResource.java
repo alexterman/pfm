@@ -2,10 +2,11 @@ package com.noname.digital.controller;
 
 import com.google.common.base.Preconditions;
 import com.noname.digital.components.CategoryDAO;
-import com.noname.digital.components.TagDAO;
-import com.noname.digital.controller.rest.*;
+import com.noname.digital.controller.rest.Created;
+import com.noname.digital.controller.rest.FoundCategory;
+import com.noname.digital.controller.rest.ModifiedCategory;
+import com.noname.digital.controller.rest.NewCategory;
 import com.noname.digital.model.Category;
-import com.noname.digital.model.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.websocket.server.PathParam;
 import java.util.Optional;
 
 /**
