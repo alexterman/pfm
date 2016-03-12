@@ -15,9 +15,9 @@ public class FoundTransaction {
     public long customerId;
     public Date execution;
     public String description;
-    public long balanceBefore;
-    public long balanceAfter;
-    public long amount;
+    public double balanceBefore;
+    public double balanceAfter;
+    public double amount;
 
     public FoundCategory category;
     public Set<FoundTag> tags;

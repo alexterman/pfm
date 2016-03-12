@@ -42,25 +42,6 @@ public class CustomerDAO {
     }
 
     
-    public void createTransaction (NewTransaction newTransaction){
-        if(log.isDebugEnabled()){
-            log.info("Requested to create transaction: [{}]", newTransaction);
-        }
-
-        Customer customer = this.customerRepository.findOne(newTransaction.customerId);
-
-        Transaction transaction = new Transaction(
-                customer,
-                newTransaction.execution,
-                newTransaction.description,
-                newTransaction.balanceBefore,
-                newTransaction.balanceAfter,
-                newTransaction.amount
-                );
-        transactionRepository.save(transaction);
-    }
-
-    
     public List<Customer> listCustomers() {
 
         Iterable<Customer> customers = customerRepository.findAll();

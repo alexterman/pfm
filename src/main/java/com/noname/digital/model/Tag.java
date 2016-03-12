@@ -14,7 +14,7 @@ public class Tag {
     public long id;
 
     @ManyToOne
-    private Customer customer;
+    public Customer customer;
 
     @ManyToMany
     public Set<Transaction> transactions;

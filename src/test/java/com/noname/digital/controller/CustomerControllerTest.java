@@ -2,6 +2,7 @@ package com.noname.digital.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.noname.digital.Application;
+import com.noname.digital.controller.rest.Created;
 import com.noname.digital.controller.rest.FoundCustomer;
 import com.noname.digital.controller.rest.NewCustomer;
 import com.noname.digital.repo.CustomerRepository;
@@ -11,9 +12,11 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.HashSet;
@@ -60,24 +63,29 @@ public class CustomerControllerTest {
         ObjectMapper mapper = new ObjectMapper();
         String value = mapper.writeValueAsString(newCustomer);
 
-        mockMvc.perform(post("/customers")
+        ResultActions resultActions = mockMvc.perform(post("/customers")
                 .content(value)
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated())
-                .andExpect(content().string("{\"id\":1}"))
-                ;
+                .andExpect(status().isCreated());
+
+        MockHttpServletResponse response = resultActions.andReturn().getResponse();
+        String result = response.getContentAsString();
+        Created created = mapper.readValue(result, Created.class);
+
+
         FoundCustomer foundCustomer = new FoundCustomer();
         foundCustomer.firstName = newCustomer.firstName;
         foundCustomer.lastName = newCustomer.lastName;
-        foundCustomer.id = 1L;
+        foundCustomer.id = created.id;
         foundCustomer.categories = new HashSet<>();
         foundCustomer.tags = new HashSet<>();
 
         String asString = mapper.writeValueAsString(foundCustomer);
-        mockMvc.perform(get("/customers/1"))
+        mockMvc.perform(get("/customers/" + created.id))
+                .andExpect(status().isOk())
                 .andExpect(content().string(asString));
 
-        this.customerRepository.delete(1L);
+        this.customerRepository.delete(created.id);
 
     }
 

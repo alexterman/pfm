@@ -1,11 +1,8 @@
 package com.noname.digital.model;
 
-import com.google.common.base.MoreObjects;
-
 import javax.persistence.*;
 import java.util.Date;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Entity
 public class Transaction {
@@ -27,17 +24,17 @@ public class Transaction {
     
     public String description;
 
-    public long balanceBefore;
+    public double balanceBefore;
 
-    public long balanceAfter;
+    public double balanceAfter;
 
-    public long amount;
+    public double amount;
 
     protected Transaction() {}
 
 
     public Transaction(Customer customer, Category category, Date execution, String description,
-                       long balanceBefore, long balanceAfter, long amount) {
+                       double balanceBefore, double balanceAfter, double amount) {
         this.category = category;
         this.customer = customer;
         this.execution = execution;
@@ -49,7 +46,7 @@ public class Transaction {
 
 
     public Transaction(Customer customer, Date execution, String description,
-                       long balanceBefore, long balanceAfter, long amount) {
+                       double balanceBefore, double balanceAfter, double amount) {
 
         this.customer = customer;
         this.execution = execution;
@@ -57,20 +54,5 @@ public class Transaction {
         this.balanceBefore = balanceBefore;
         this.balanceAfter = balanceAfter;
         this.amount = amount;
-    }
-
-
-    @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this)
-                .add("id", id)
-                .add("category", category.name)
-                .add("customer", customer.id)
-                .add("execution", execution)
-                .add("description", description)
-                .add("balanceBefore", balanceBefore)
-                .add("balanceAfter", balanceAfter)
-                .add("amount", amount)
-                .toString();
     }
 }

@@ -1,6 +1,6 @@
 package com.noname.digital.components;
 
-import com.noname.digital.controller.rest.*;
+import com.noname.digital.controller.rest.NewTransaction;
 import com.noname.digital.model.Category;
 import com.noname.digital.model.Customer;
 import com.noname.digital.model.Tag;
@@ -9,15 +9,13 @@ import com.noname.digital.repo.CategoryRepository;
 import com.noname.digital.repo.CustomerRepository;
 import com.noname.digital.repo.TagRepository;
 import com.noname.digital.repo.TransactionRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -25,6 +23,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 @Component
 public class TransactionDAO {
+
+
+    private Logger log = LoggerFactory.getLogger(TransactionDAO.class);
 
     @Autowired
     CustomerRepository customerRepository;
@@ -59,108 +60,109 @@ public class TransactionDAO {
     }
 
     public void addCategoryToTransaction(Long customerId, Long categoryId, Long transactionId) {
-        Customer customer = getCustomer(customerId);
-
-        isCustomerOwnerOfCategory(categoryId, customer);
-        isCustomerOwnerOfTransaction(transactionId, customer);
 
         Category category = this.categoryRepository.findOne(categoryId);
         Transaction transaction = this.transactionRepository.findOne(transactionId);
 
+        if(category.customer.id == customerId && transaction.customer.id == customerId){
+            transaction.category = category;
+            this.transactionRepository.save(transaction);
+        }else{
+            log.error("addCategoryToTransaction failed, the customer id [{}] doesn't match customer id in category id [{}] or/and transaction id [{}]"
+                    , customerId, categoryId, transactionId);
+        }
+    }
+
+
+    public Category addNewCategoryToTransaction(Long customerId, Long transactionId, String categoryName) {
+
+        Customer customer = getCustomer(customerId);
+        Transaction transaction = this.transactionRepository.findOne(transactionId);
+
+        if(transaction.customer.id != customerId){
+            throw new RuntimeException("addNewCategoryToTransaction failed, transaction is not belongs to a customer");
+        }
+
+        Category category = new Category(customer, categoryName);
+        Category saved = this.categoryRepository.save(category);
+
         transaction.category = category;
         this.transactionRepository.save(transaction);
+
+        return saved;
     }
 
-    public void addTagsToTransaction(Long customerId, Long transactionId, List<Long> tags) {
-        Customer customer = getCustomer(customerId);
 
-        isCustomerOwnerOfTags(tags, customer);
-        isCustomerOwnerOfTransaction(transactionId, customer);
+    public void removeCategoryFromTransaction(Long customerId, Long categoryId, Long transactionId) {
+
+        Category category = this.categoryRepository.findOne(categoryId);
+        Transaction transaction = this.transactionRepository.findOne(transactionId);
+
+        if(category.customer.id == customerId && transaction.customer.id == customerId){
+            transaction.category = null;
+            this.transactionRepository.save(transaction);
+        }else{
+            log.error("addCategoryToTransaction failed, the customer id [{}] doesn't match customer id in category id [{}] or/and transaction id [{}]"
+                    , customerId, categoryId, transactionId);
+        }
+    }
+
+    public void addTagToTransaction(Long customerId, Long transactionId, Long tagId) {
 
         Transaction transaction = this.transactionRepository.findOne(transactionId);
-        final Set<Tag> resolved = new HashSet<>();
-        tags.stream().forEach(tId -> resolved.add(this.tagRepository.findOne(tId)));
+        Tag tag = this.tagRepository.findOne(tagId);
 
-        Set<Tag> transactionTags = transaction.tags;
-        if(transactionTags == null){
-           transactionTags = new HashSet<>();
+        if(transaction.customer.id == customerId && tag.customer.id == customerId){
+            transaction.tags.add(tag);
+            this.transactionRepository.save(transaction);
+        }else{
+            throw new RuntimeException ( //TODO maybe change to invalid arguments exception ...
+                    "addTagToTransaction failed, the customerId " +
+                            "["+customerId+"], transactionId ["+transactionId+"], tagId ["+tagId+"] doesn't match");
         }
-        transactionTags.addAll(resolved);
-        this.transactionRepository.save(transaction);
+    }
+
+    public void removeTagFromTransaction(Long customerId, Long transactionId, Long tagId) {
+
+        Transaction transaction = this.transactionRepository.findOne(transactionId);
+        Tag tag = this.tagRepository.findOne(tagId);
+
+        if(transaction.customer.id == customerId && tag.customer.id == customerId){
+            transaction.tags.remove(tag);
+            this.transactionRepository.save(transaction);
+        }else{
+            log.error(
+                    "removeTagFromTransaction failed, the customerId [[]], transactionId [{}], tagId [{}] not match ",
+                    customerId, transactionId, tagId);
+        }
     }
 
 
-    public void updateTransaction(Long customerId, ModifiedTransaction modifiedTransaction) {
+    public Tag addNewTagToTransaction(Long customerId, Long transactionId, String tagName) {
+
         Customer customer = getCustomer(customerId);
-        isCustomerOwnerOfTransaction(modifiedTransaction.id, customer);
+        Transaction transaction = this.transactionRepository.findOne(transactionId);
 
-        Transaction transaction = this.transactionRepository.findOne(modifiedTransaction.id);
-        updateTransaction(transaction, modifiedTransaction, customer);
+        if(transaction.customer.id != customerId){
+            throw new RuntimeException("addNewTagToTransaction failed, transaction is not belongs to a customer");
+        }
+
+        Tag saved = createNewTag(tagName, customer);
+
+        transaction.tags.add(saved);
         this.transactionRepository.save(transaction);
 
+        return saved;
     }
-
 
     public void deleteTransaction (Long customerId, Long transactionId) {
-        Customer customer = getCustomer(customerId);
-        isCustomerOwnerOfTransaction(transactionId, customer);
+        Transaction transactionToDelete  = this.transactionRepository.findOne(transactionId);
 
-        this.transactionRepository.delete(transactionId);
-    }
+        if(transactionToDelete.customer.id == customerId){
+            this.transactionRepository.delete(transactionToDelete);
+        }else{
 
-
-    private void updateTransaction(
-            Transaction transaction, ModifiedTransaction modifiedTransaction, Customer customer){
-        transaction.category = convertCategory(modifiedTransaction.category, customer);
-        transaction.tags = convertTags(modifiedTransaction.tags, customer);
-        transaction.description = modifiedTransaction.description;
-
-    }
-
-    private Category convertCategory(FoundCategory category, Customer customer) {
-
-        Category c = this.categoryRepository.findOne(category.id);
-        if(c == null){
-            c = this.categoryRepository.save(new Category(customer, category.name));
         }
-        return c;
-    }
-
-    private Set<Tag> convertTags(Set<FoundTag> tags, Customer customer) {
-        Set<Tag> converted = new HashSet<>();
-        tags.stream().forEach(foundTag -> {
-            Tag existing = this.tagRepository.findOne(foundTag.id);
-            if(existing == null){
-                existing = this.tagRepository.save(new Tag(customer, foundTag.name));
-            }
-            converted.add(existing);
-        });
-        return converted;
-    }
-
-
-    private void isCustomerOwnerOfTransaction(Long transactionId, Customer customer) {
-        checkArgument(
-                customer.transactions.stream().
-                        filter(t->t.id == transactionId).
-                        collect(Collectors.toList()).size() == 1,
-                "Customer with id [{}] is not own Transaction with id [{}]", customer.id, transactionId);
-    }
-
-    private void isCustomerOwnerOfCategory(Long categoryId, Customer customer) {
-        checkArgument(
-                customer.categories.stream().
-                        filter(c->c.id == categoryId).
-                        collect(Collectors.toList()).size() == 1,
-                "Customer with id [{}] is not own Category with id [{}]", customer.id, categoryId);
-    }
-
-    private void isCustomerOwnerOfTags(List<Long> tags, Customer customer) {
-        checkArgument(
-                customer.tags.stream().
-                        map(t -> t.id).
-                        collect(Collectors.toSet()).containsAll(tags),
-                "Customer with id [{}] is not own one or more Tags with ids [{}]", customer.id, tags);
     }
 
     private Customer getCustomer(Long id) {
@@ -169,4 +171,18 @@ public class TransactionDAO {
         return customer;
     }
 
+
+    private Tag createNewTag(String tagName, Customer customer) {
+        Tag tag = new Tag();
+        tag.customer = customer;
+        tag.name = tagName;
+
+        return this.tagRepository.save(tag);
+    }
+
+    public List<Transaction> getTransactions(Long id) {
+        getCustomer(id);
+
+        return this.transactionRepository.findByCustomer_Id(id);
+    }
 }

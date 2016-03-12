@@ -9,17 +9,15 @@ import java.util.Date;
  */
 public class NewTransaction {
 
-    public long customerId;
     public Date execution;
     public String description;
-    public long balanceBefore;
-    public long balanceAfter;
-    public long amount;
+    public double balanceBefore;
+    public double balanceAfter;
+    public double amount;
 
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("customerId", customerId)
                 .add("execution", execution)
                 .add("description", description)
                 .add("balanceBefore", balanceBefore)

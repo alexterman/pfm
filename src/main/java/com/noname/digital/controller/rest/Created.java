@@ -7,6 +7,7 @@ public class Created {
 
     public long id;
 
+    protected Created () {}
     public Created(long id) {
         this.id = id;
     }
