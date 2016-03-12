@@ -82,7 +82,7 @@ public class CategoryDAO {
 
     private Customer getCustomer(Long id) {
         Customer customer = this.customerRepository.findOne(id);
-        checkNotNull(customer,"No customer found for id="+id);
+        checkNotNull(customer,"No customer found for id="+id); //FIXME propogate proper exception UserNotFoundException
         return customer;
     }
 
